@@ -2,75 +2,71 @@ using Microsoft.AspNetCore.Mvc;
 using ASPNetExapp.Models;
 using ASPNetExapp.Services;
 
-namespace UsersApi.Controllers;
-
-[ApiController]
-[Route("api/cars")]
-public class CarsController : ControllerBase
+namespace CarsApi.Controllers
 {
-    private readonly CarService _carService;
-
-    public CarsController(CarService carService)
+    [ApiController]
+    [Route("api/cars")]
+    public class CarsController : ControllerBase
     {
-        _carService = carService;
-    }
+        private readonly CarService _carService;
 
-    // Отримати всі машини
-    [HttpGet]
-    public IActionResult GetCars()
-    {
-        var cars = _carService.GetCars();
-        return Ok(cars);
-    }
-
-    // Отримати машину за ID
-    [HttpGet("{id}")]
-    public IActionResult GetCarById(int id)
-    {
-        var car = _carService.GetCarById(id);
-        return car != null ? Ok(car) : NotFound(new { message = "Car not found" });
-    }
-
-    // Додати нову машину
-    [HttpPost]
-    public IActionResult CreateCar([FromBody] Car newCar)
-    {
-        // Перевірка на валідність моделі
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);  // Повертаємо всі помилки валідації
-
-        try
+        public CarsController(CarService carService)
         {
-            var createdCar = _carService.CreateCar(newCar);
-            return CreatedAtAction(nameof(GetCarById), new { id = createdCar.Id }, createdCar);
+            _carService = carService;
         }
-        catch (InvalidOperationException ex)
+
+        // Get all cars
+        [HttpGet]
+        public IActionResult GetCars()
         {
-            return Conflict(new { message = ex.Message });
+            var cars = _carService.GetCars();
+            return Ok(cars);
         }
-    }
 
-    // Оновити машину за ID
-    [HttpPatch("{id}")]
-    public IActionResult UpdateCar(int id, [FromBody] Car updatedCar)
-    {
-        // Перевірка на валідність моделі
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);  // Повертаємо всі помилки валідації
+        // Get car by ID
+        [HttpGet("{id}")]
+        public IActionResult GetCarById(int id)
+        {
+            var car = _carService.GetCarById(id);
+            return car != null ? Ok(car) : NotFound(new { message = "Car not found" });
+        }
 
-        if (!_carService.UpdateCar(id, updatedCar))
-            return NotFound(new { message = "Car not found" });
+        // Create a new car
+        [HttpPost]
+        public ActionResult<Car> CreateCar([FromBody] Car newCar)
+        {
+            try
+            {
+                var createdCar = _carService.CreateCar(newCar);
+                return CreatedAtAction(nameof(GetCarById), new { id = createdCar.Id }, createdCar);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        return NoContent();
-    }
+        // Update car by ID
+        [HttpPatch("{id}")]
+        public IActionResult UpdateCar(int id, [FromBody] Car updatedCar)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-    // Видалити машину за ID
-    [HttpDelete("{id}")]
-    public IActionResult DeleteCar(int id)
-    {
-        if (!_carService.DeleteCar(id))
-            return NotFound(new { message = "Car not found" });
+            if (!_carService.UpdateCar(id, updatedCar))
+                return NotFound(new { message = "Car not found" });
 
-        return NoContent();
+            return NoContent();
+        }
+
+        // Delete car by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCar(int id)
+        {
+            if (!_carService.DeleteCar(id))
+                return NotFound(new { message = "Car not found" });
+
+            return NoContent();
+        }
     }
 }

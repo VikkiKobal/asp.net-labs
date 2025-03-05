@@ -1,14 +1,16 @@
 using ASPNetExapp.Services;
 
-// Створюємо екземпляр класу WebApplication, який дозволяє створювати веб-додатки ASP.NET Core
 var builder = WebApplication.CreateBuilder(args);
 
 // Додаємо підтримку контролерів
 builder.Services.AddControllers();
+
 // Додаємо підтримку Swagger
 builder.Services.AddSwaggerGen();
-// Додаємо кастомний сервіс
+
+// Додаємо кастомні сервіси
 builder.Services.AddSingleton<UserService>();
+builder.Services.AddScoped<CarService>(); // Реєстрація CarService
 
 var app = builder.Build();
 
