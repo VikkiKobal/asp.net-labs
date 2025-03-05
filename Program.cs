@@ -10,7 +10,7 @@ builder.Services.AddSwaggerGen();
 
 // Додаємо кастомні сервіси
 builder.Services.AddSingleton<UserService>();
-builder.Services.AddScoped<CarService>(); // Реєстрація CarService
+builder.Services.AddSingleton<CarService>(); 
 
 var app = builder.Build();
 
