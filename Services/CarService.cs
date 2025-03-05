@@ -5,22 +5,33 @@ namespace ASPNetExapp.Services;
 public class CarService
 {
     private readonly List<Car> _cars = new()
-    {
-        new Car { Id = 1, Number = "AA1234BB", Year = 2020, Brand = "Toyota", Color = "Red", Condition = "New", OwnerLastName = "Shevchenko", Address = "Kyiv" },
-        new Car { Id = 2, Number = "BC5678CD", Year = 2018, Brand = "Honda", Color = "Blue", Condition = "Used", OwnerLastName = "Petrenko", Address = "Lviv" }
-    };
+{
+    new Car { Id = 1, Number = "AA1234BB", Year = 2020, Brand = "Toyota", Color = "Red", Condition = "New", OwnerLastName = "Shevchenko", Address = "Kyiv" },
+    new Car { Id = 2, Number = "BC5678CD", Year = 2018, Brand = "Honda", Color = "Blue", Condition = "Used", OwnerLastName = "Petrenko", Address = "Lviv" },
+    new Car { Id = 3, Number = "CE9012DE", Year = 2015, Brand = "Ford", Color = "Black", Condition = "Used", OwnerLastName = "Koval", Address = "Odesa" },
+    new Car { Id = 4, Number = "DA3456EF", Year = 2022, Brand = "BMW", Color = "White", Condition = "New", OwnerLastName = "Ivanenko", Address = "Dnipro" }
+};
 
+    // Отримати всі машини
     public List<Car> GetCars() => _cars;
 
+    // Отримати машину за ID
     public Car? GetCarById(int id) => _cars.FirstOrDefault(c => c.Id == id);
 
+    // Додати нову машину
     public Car CreateCar(Car newCar)
     {
-        newCar.Id = _cars.Count > 0 ? _cars.Max(c => c.Id) + 1 : 1;
+        if (_cars.Any(c => c.Number == newCar.Number))
+        {
+            throw new InvalidOperationException("Car with this number already exists.");
+        }
+
+        newCar.Id = _cars.Any() ? _cars.Max(c => c.Id) + 1 : 1;
         _cars.Add(newCar);
         return newCar;
     }
 
+    // Оновити машину за ID
     public bool UpdateCar(int id, Car updatedCar)
     {
         var car = GetCarById(id);
@@ -36,6 +47,7 @@ public class CarService
         return true;
     }
 
+    // Видалити машину за ID
     public bool DeleteCar(int id)
     {
         var car = GetCarById(id);
@@ -45,3 +57,4 @@ public class CarService
         return true;
     }
 }
+

@@ -15,37 +15,58 @@ public class CarsController : ControllerBase
         _carService = carService;
     }
 
+    // Отримати всі машини
     [HttpGet]
-    public ActionResult<List<Car>> GetCars()
+    public IActionResult GetCars()
     {
-        return Ok(_carService.GetCars());
+        var cars = _carService.GetCars();
+        return Ok(cars);
     }
 
+    // Отримати машину за ID
     [HttpGet("{id}")]
-    public ActionResult<Car> GetCarById(int id)
+    public IActionResult GetCarById(int id)
     {
         var car = _carService.GetCarById(id);
         return car != null ? Ok(car) : NotFound(new { message = "Car not found" });
     }
 
+    // Додати нову машину
     [HttpPost]
-    public ActionResult<Car> CreateCar([FromBody] Car newCar)
+    public IActionResult CreateCar([FromBody] Car newCar)
     {
-        var createdCar = _carService.CreateCar(newCar);
-        return CreatedAtAction(nameof(GetCarById), new { id = createdCar.Id }, createdCar);
+        // Перевірка на валідність моделі
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);  // Повертаємо всі помилки валідації
+
+        try
+        {
+            var createdCar = _carService.CreateCar(newCar);
+            return CreatedAtAction(nameof(GetCarById), new { id = createdCar.Id }, createdCar);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
+    // Оновити машину за ID
     [HttpPatch("{id}")]
-    public ActionResult UpdateCar(int id, [FromBody] Car updatedCar)
+    public IActionResult UpdateCar(int id, [FromBody] Car updatedCar)
     {
+        // Перевірка на валідність моделі
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);  // Повертаємо всі помилки валідації
+
         if (!_carService.UpdateCar(id, updatedCar))
             return NotFound(new { message = "Car not found" });
 
         return NoContent();
     }
 
+    // Видалити машину за ID
     [HttpDelete("{id}")]
-    public ActionResult DeleteCar(int id)
+    public IActionResult DeleteCar(int id)
     {
         if (!_carService.DeleteCar(id))
             return NotFound(new { message = "Car not found" });
