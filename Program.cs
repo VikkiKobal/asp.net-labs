@@ -5,11 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register DbContext with scoped lifetime
 builder.Services.AddDbContext<CarDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register CarService with scoped lifetime
 builder.Services.AddScoped<CarService>();
 
 builder.Services.AddControllers();
