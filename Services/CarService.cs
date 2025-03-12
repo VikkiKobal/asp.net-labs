@@ -1,60 +1,66 @@
-using ASPNetExapp.Models;
+using CarModels; 
+using Microsoft.EntityFrameworkCore;
+using ASPNetExapp.Models; 
 
-namespace ASPNetExapp.Services;
 
-public class CarService
+namespace CarServices
 {
-    private readonly List<Car> _cars = new()
+    public class CarService
     {
-        new Car { Id = 1, Number = "AA1234BB", Year = 2020, Brand = "Toyota", Color = "Red", Condition = "New", OwnerLastName = "Shevchenko", Address = "Kyiv" },
-        new Car { Id = 2, Number = "BC5678CD", Year = 2018, Brand = "Honda", Color = "Blue", Condition = "Used", OwnerLastName = "Petrenko", Address = "Lviv" },
-        new Car { Id = 3, Number = "CE9012DE", Year = 2015, Brand = "Ford", Color = "Black", Condition = "Used", OwnerLastName = "Koval", Address = "Odesa" },
-        new Car { Id = 4, Number = "DA3456EF", Year = 2022, Brand = "BMW", Color = "White", Condition = "New", OwnerLastName = "Ivanenko", Address = "Dnipro" },
-        new Car { Id = 5, Number = "CE9012DE", Year = 2015, Brand = "Ford", Color = "Black", Condition = "Used", OwnerLastName = "Koval", Address = "Odesa" }
-    };
+        private readonly CarDbContext _context;
 
-    // Get all cars
-    public List<Car> GetCars() => _cars;
-
-    // Get car by ID
-    public Car? GetCarById(int id) => _cars.FirstOrDefault(c => c.Id == id);
-
-    // Add a new car
-    public Car CreateCar(Car newCar)
-    {
-        if (_cars.Any(c => c.Number == newCar.Number))
+        public CarService(CarDbContext context)
         {
-            throw new InvalidOperationException("Car with this number already exists.");
+            _context = context;
         }
 
-        newCar.Id = _cars.Any() ? _cars.Max(c => c.Id) + 1 : 1;
-        _cars.Add(newCar);
-        return newCar;
-    }
+        // Get all cars
+        public async Task<List<Car>> GetCars() => await _context.Cars.ToListAsync();
 
-    // Update car by ID
-    public bool UpdateCar(int id, Car updatedCar)
-    {
-        var car = GetCarById(id);
-        if (car == null) return false;
+        // Get car by ID
+        public async Task<Car?> GetCarById(int id) => await _context.Cars
+            .FirstOrDefaultAsync(c => c.Id == id);
 
-        car.Number = updatedCar.Number;
-        car.Year = updatedCar.Year;
-        car.Brand = updatedCar.Brand;
-        car.Color = updatedCar.Color;
-        car.Condition = updatedCar.Condition;
-        car.OwnerLastName = updatedCar.OwnerLastName;
-        car.Address = updatedCar.Address;
-        return true;
-    }
+        // Add a new car
+        public async Task<Car> CreateCar(Car newCar)
+        {
+            if (await _context.Cars.AnyAsync(c => c.Number == newCar.Number))
+            {
+                throw new InvalidOperationException("Car with this number already exists.");
+            }
 
-    // Delete car by ID
-    public bool DeleteCar(int id)
-    {
-        var car = GetCarById(id);
-        if (car == null) return false;
+            _context.Cars.Add(newCar);
+            await _context.SaveChangesAsync();
+            return newCar;
+        }
 
-        _cars.Remove(car);
-        return true;
+        // Update car by ID
+        public async Task<bool> UpdateCar(int id, Car updatedCar)
+        {
+            var car = await GetCarById(id);
+            if (car == null) return false;
+
+            car.Number = updatedCar.Number ?? car.Number;
+            car.Year = updatedCar.Year;
+            car.Brand = updatedCar.Brand ?? car.Brand;
+            car.Color = updatedCar.Color ?? car.Color;
+            car.Condition = updatedCar.Condition ?? car.Condition;
+            car.OwnerLastName = updatedCar.OwnerLastName ?? car.OwnerLastName;
+            car.Address = updatedCar.Address ?? car.Address;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Delete car by ID
+        public async Task<bool> DeleteCar(int id)
+        {
+            var car = await GetCarById(id);
+            if (car == null) return false;
+
+            _context.Cars.Remove(car);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

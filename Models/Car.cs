@@ -1,10 +1,16 @@
-namespace ASPNetExapp.Models
+using System.ComponentModel.DataAnnotations;
+
+namespace CarModels
 {
     public class Car
     {
+        [Key]
         public int Id { get; set; }
-        public string Number { get; set; }  
+        [Required]
+        public string Number { get; set; }
+        [Required]
         public int Year { get; set; }
+        [Required]
         public string Brand { get; set; }
         public string Color { get; set; }
         public string Condition { get; set; }

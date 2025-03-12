@@ -1,20 +1,23 @@
-using ASPNetExapp.Services;
+using ASPNetExapp.Models; 
+using CarServices;
+using Microsoft.EntityFrameworkCore; 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Додаємо підтримку контролерів
+// Register DbContext with scoped lifetime
+builder.Services.AddDbContext<CarDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register CarService with scoped lifetime
+builder.Services.AddScoped<CarService>();
+
 builder.Services.AddControllers();
-
-// Додаємо підтримку Swagger
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// Додаємо кастомні сервіси
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<CarService>(); 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,6 +25,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers(); // Важливо для роботи контролерів! Це по суті налаштування маршрутизації
-
+app.UseAuthorization();
+app.MapControllers();
 app.Run();

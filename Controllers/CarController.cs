@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using ASPNetExapp.Models;
-using ASPNetExapp.Services;
-
-namespace CarsApi.Controllers
+using Microsoft.AspNetCore.Mvc; 
+using CarModels; 
+using CarServices; 
+namespace CarControllers
 {
     [ApiController]
     [Route("api/cars")]
@@ -17,27 +16,27 @@ namespace CarsApi.Controllers
 
         // Get all cars
         [HttpGet]
-        public IActionResult GetCars()
+        public async Task<IActionResult> GetCars()
         {
-            var cars = _carService.GetCars();
+            var cars = await _carService.GetCars();
             return Ok(cars);
         }
 
         // Get car by ID
         [HttpGet("{id}")]
-        public IActionResult GetCarById(int id)
+        public async Task<IActionResult> GetCarById(int id)
         {
-            var car = _carService.GetCarById(id);
+            var car = await _carService.GetCarById(id);
             return car != null ? Ok(car) : NotFound(new { message = "Car not found" });
         }
 
         // Create a new car
         [HttpPost]
-        public ActionResult<Car> CreateCar([FromBody] Car newCar)
+        public async Task<ActionResult<Car>> CreateCar([FromBody] Car newCar)
         {
             try
             {
-                var createdCar = _carService.CreateCar(newCar);
+                var createdCar = await _carService.CreateCar(newCar);
                 return CreatedAtAction(nameof(GetCarById), new { id = createdCar.Id }, createdCar);
             }
             catch (InvalidOperationException ex)
@@ -48,12 +47,12 @@ namespace CarsApi.Controllers
 
         // Update car by ID
         [HttpPatch("{id}")]
-        public IActionResult UpdateCar(int id, [FromBody] Car updatedCar)
+        public async Task<IActionResult> UpdateCar(int id, [FromBody] Car updatedCar)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (!_carService.UpdateCar(id, updatedCar))
+            if (!await _carService.UpdateCar(id, updatedCar))
                 return NotFound(new { message = "Car not found" });
 
             return NoContent();
@@ -61,9 +60,9 @@ namespace CarsApi.Controllers
 
         // Delete car by ID
         [HttpDelete("{id}")]
-        public IActionResult DeleteCar(int id)
+        public async Task<IActionResult> DeleteCar(int id)
         {
-            if (!_carService.DeleteCar(id))
+            if (!await _carService.DeleteCar(id))
                 return NotFound(new { message = "Car not found" });
 
             return NoContent();
