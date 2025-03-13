@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Metadata; // Додано цей рядок
+using Microsoft.EntityFrameworkCore.Metadata; 
 
 #nullable disable
 
