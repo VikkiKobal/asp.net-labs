@@ -4,8 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using CarModels;
-
+using CarModels; 
 
 namespace ASPNetExapp.Middlewares
 {
@@ -29,7 +28,23 @@ namespace ASPNetExapp.Middlewares
                     var body = await reader.ReadToEndAsync();
                     context.Request.Body.Position = 0;
 
-                    var car = JsonSerializer.Deserialize<Car>(body);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
+                    Car car;
+                    try
+                    {
+                        car = JsonSerializer.Deserialize<Car>(body, options);
+                    }
+                    catch (JsonException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("Invalid JSON format.");
+                        return;
+                    }
+
                     if (car == null || string.IsNullOrWhiteSpace(car.Number) || car.Year < 1900 || car.Year > DateTime.Now.Year)
                     {
                         context.Response.StatusCode = StatusCodes.Status400BadRequest;
@@ -42,4 +57,4 @@ namespace ASPNetExapp.Middlewares
             await _next(context);
         }
     }
-}
+ }
