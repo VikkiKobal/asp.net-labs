@@ -1,5 +1,7 @@
 using System;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ASPNetExapp.Middlewares
 {
@@ -16,16 +18,14 @@ namespace ASPNetExapp.Middlewares
         {
             try
             {
-                await _next(context); 
+                await _next(context);
             }
             catch (Exception ex)
             {
-      
-                Console.WriteLine($"Ïîìèëêà: {ex.Message}");
+                Console.WriteLine($"Помилка: {ex.Message}");
 
-            
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("Ñòàëàñÿ ïîìèëêà.");
+                await context.Response.WriteAsync("Сталася помилка.");
             }
         }
     }
