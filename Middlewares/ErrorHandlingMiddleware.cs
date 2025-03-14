@@ -1,3 +1,6 @@
+using System;
+using System.Text;
+
 namespace ASPNetExapp.Middlewares
 {
     public class ErrorHandlingMiddleware
