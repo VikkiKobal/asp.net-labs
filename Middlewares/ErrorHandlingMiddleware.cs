@@ -13,16 +13,16 @@ namespace ASPNetExapp.Middlewares
         {
             try
             {
-                await _next(context); // Пропускаємо запит в наступний middleware
+                await _next(context); 
             }
             catch (Exception ex)
             {
-                // Логування помилки
-                Console.WriteLine($"Помилка: {ex.Message}");
+      
+                Console.WriteLine($"ГЏГ®Г¬ГЁГ«ГЄГ : {ex.Message}");
 
-                // Встановлюємо статус відповіді на 500
+            
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("Сталася помилка.");
+                await context.Response.WriteAsync("Г‘ГІГ Г«Г Г±Гї ГЇГ®Г¬ГЁГ«ГЄГ .");
             }
         }
     }
